@@ -1,6 +1,6 @@
 module Eval exposing (eval)
 
-import Program exposing (Statement(..))
+import Parser exposing (Statement(..))
 import Tape exposing (Tape)
 
 
@@ -23,7 +23,7 @@ eval : String -> List Int -> List Int
 eval code stdin =
     let
         stmts =
-            Program.parse code
+            Parser.parse code
 
         finalState =
             program stmts (initialState stdin)

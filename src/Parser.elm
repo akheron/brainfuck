@@ -1,4 +1,4 @@
-module Program exposing (Statement(..), parse)
+module Parser exposing (Statement(..), parse)
 
 
 type Statement
