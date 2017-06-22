@@ -1,3 +1,4 @@
 elm-stuff
 repl-temp-*
-/main.js
+/index.js
+/node_modules

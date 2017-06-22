@@ -1,0 +1,17 @@
+{
+  "name": "brainfuck",
+  "version": "0.1.0",
+  "description": "Brainfuck interpreter in the browser",
+  "main": "index.js",
+  "repository": "https://github.com/akheron/brainfuck.git",
+  "author": "Petri Lehtinen <petri@digip.org>",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "elm": "^0.18.0",
+    "gulp": "^3.9.1",
+    "gulp-elm": "^0.7.2",
+    "gulp-minify": "^1.0.0",
+    "gulp-rename": "^1.2.2"
+  }
+}
