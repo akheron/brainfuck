@@ -57,8 +57,8 @@ statement stmt =
         Input ->
             input
 
-        While body ->
-            while body
+        Loop body ->
+            loop body
 
 
 
@@ -86,8 +86,8 @@ input state =
             state
 
 
-while : List Statement -> EvalState -> EvalState
-while body state =
+loop : List Statement -> EvalState -> EvalState
+loop body state =
     if Tape.get state.tape == 0 then
         state
     else
@@ -95,4 +95,4 @@ while body state =
             nextState =
                 program body state
         in
-            while body nextState
+            loop body nextState

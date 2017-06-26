@@ -8,88 +8,103 @@ type Statement
     | Decr
     | Output
     | Input
-    | While (List Statement)
+    | Loop (List Statement)
 
 
+type alias ParseState =
+    { body : List Statement -- body of the current scope (top-level or loop)
+    , parents : List (List Statement) -- stack of outer loops
+    }
+
+
+emptyState : ParseState
+emptyState =
+    { body = []
+    , parents = []
+    }
+
+
+{-| Parse a string to a list of statements
+-}
 parse : String -> List Statement
 parse input =
     let
-        ( _, program ) =
-            parse_ 0 input []
+        state =
+            List.foldl statement emptyState (String.toList input)
+
+        { body } =
+            unwield state
     in
-        List.reverse program
+        List.reverse body
 
 
-parse_ : Int -> String -> List Statement -> ( String, List Statement )
-parse_ depth input program =
-    let
-        ( result, tail ) =
-            statement depth input
+{-| "Close" loops that were left open in the end (i.e. had no matching ']')
+-}
+unwield : ParseState -> ParseState
+unwield state =
+    case state.parents of
+        [] ->
+            state
 
-        newProgram =
-            case result of
-                Ok stmt ->
-                    stmt :: program
-
-                _ ->
-                    program
-    in
-        case result of
-            End ->
-                ( tail, newProgram )
-
-            _ ->
-                parse_ depth tail newProgram
+        _ ->
+            -- close unterminated loop
+            unwield (endLoop state)
 
 
-type ParseResult
-    = Ok Statement
-    | NoOp
-    | End
+statement : Char -> ParseState -> ParseState
+statement chr =
+    case chr of
+        '>' ->
+            cmd Right
+
+        '<' ->
+            cmd Left
+
+        '+' ->
+            cmd Incr
+
+        '-' ->
+            cmd Decr
+
+        '.' ->
+            cmd Output
+
+        ',' ->
+            cmd Input
+
+        '[' ->
+            loop
+
+        ']' ->
+            endLoop
+
+        _ ->
+            -- no-op
+            identity
 
 
-statement : Int -> String -> ( ParseResult, String )
-statement depth input =
-    let
-        statement_ : ( Char, String ) -> ( ParseResult, String )
-        statement_ ( head, tail ) =
-            case head of
-                '>' ->
-                    ( Ok Right, tail )
+cmd : Statement -> ParseState -> ParseState
+cmd stmt state =
+    { state | body = stmt :: state.body }
 
-                '<' ->
-                    ( Ok Left, tail )
 
-                '+' ->
-                    ( Ok Incr, tail )
+loop : ParseState -> ParseState
+loop state =
+    { state
+        | parents = state.body :: state.parents
+        , body = []
+    }
 
-                '-' ->
-                    ( Ok Decr, tail )
 
-                '.' ->
-                    ( Ok Output, tail )
+endLoop : ParseState -> ParseState
+endLoop state =
+    case state.parents of
+        head :: tail ->
+            { state
+                | body = Loop (List.reverse state.body) :: head
+                , parents = tail
+            }
 
-                ',' ->
-                    ( Ok Input, tail )
-
-                '[' ->
-                    let
-                        ( rest, program ) =
-                            parse_ (depth + 1) tail []
-                    in
-                        ( Ok <| While <| List.reverse program, rest )
-
-                ']' ->
-                    if depth > 0 then
-                        -- Inside while, stop parsing at ]
-                        ( End, tail )
-                    else
-                        -- Outside while, unbalanced ] is a no-op
-                        ( NoOp, tail )
-
-                _ ->
-                    ( NoOp, tail )
-    in
-        String.uncons input
-            |> Maybe.map statement_
-            |> Maybe.withDefault ( End, "" )
+        [] ->
+            -- outside loop ']' is a no-op
+            state
