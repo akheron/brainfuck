@@ -20,7 +20,7 @@ gulp.task('dist', ['elm-init'], function () {
     .pipe(gulp.dest('.'));
 });
 
-gulp.task('watch', function () {
+gulp.task('watch', ['build'], function () {
   gulp.watch('src/*.elm', ['build']);
 });
 
