@@ -33,8 +33,10 @@ textarea, .output .output {
     width: 100%;
 }
 
-.output .output .error {
+.output .error {
+    font-weight: bold;
     color: #c00;
+    margin-bottom: 1em;
 }
 
 textarea {

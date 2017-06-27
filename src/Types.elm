@@ -1,12 +1,16 @@
-module Types exposing (Model, Msg(..), Example)
+module Types exposing (Model, Msg(..), Example, Stdout(..))
 
-import Html exposing (Html)
+
+type Stdout
+    = Empty
+    | Success (List Int)
+    | Error String
 
 
 type alias Model =
     { code : String
     , stdin : String
-    , stdout : List (Html Msg)
+    , stdout : Stdout
     }
 
 

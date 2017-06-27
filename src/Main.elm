@@ -1,11 +1,10 @@
 port module Main exposing (main)
 
 import Char
-import Html exposing (Html)
-import Html.Attributes as Html
+import Html
 import Eval
 import View exposing (view)
-import Types exposing (Model, Msg(Code, Stdin, ShowExample, Run))
+import Types exposing (Model, Msg(Code, Stdin, ShowExample, Run), Stdout(Empty, Success, Error))
 
 
 port setValue : ( String, String ) -> Cmd msg
@@ -20,46 +19,19 @@ init : ( Model, Cmd Msg )
 init =
     { code = ""
     , stdin = ""
-    , stdout = []
+    , stdout = Empty
     }
         => Cmd.none
 
 
-newline : Int
-newline =
-    Char.toCode '\n'
+stdoutFromResult : Result String (List Int) -> Stdout
+stdoutFromResult result =
+    case result of
+        Ok output ->
+            Success output
 
-
-output2html : Result String (List Int) -> List (Html msg)
-output2html output =
-    let
-        stdout : List Int -> List (Html msg)
-        stdout bytes =
-            List.map trans bytes
-
-        trans : Int -> Html msg
-        trans n =
-            if n == newline then
-                Html.br [] []
-            else if n < 32 || n > 127 then
-                -- non-printable
-                Html.code [] [ Html.text <| "<" ++ (toString n) ++ ">" ]
-            else
-                -- printable
-                n |> Char.fromCode |> String.fromChar |> Html.text
-
-        stderr : String -> List (Html msg)
-        stderr message =
-            [ Html.div [ Html.class "error" ]
-                [ Html.text <| "Error: " ++ message ]
-            ]
-    in
-        case output of
-            Ok bytes ->
-                stdout bytes
-
-            Err message ->
-                stderr message
+        Err message ->
+            Error message
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -76,16 +48,17 @@ update msg model =
                 stdin =
                     model.stdin |> String.toList |> List.map Char.toCode
 
-                output =
-                    Eval.eval model.code stdin
-
                 stdout =
-                    output2html output
+                    stdoutFromResult <| Eval.eval model.code stdin
             in
                 { model | stdout = stdout } => Cmd.none
 
         ShowExample example ->
-            { model | code = example.code, stdin = example.stdin }
+            { model
+                | code = example.code
+                , stdin = example.stdin
+                , stdout = Empty
+            }
                 => Cmd.batch
                     [ setValue ( "code", example.code )
                     , setValue ( "stdin", example.stdin )

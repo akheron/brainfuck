@@ -1,9 +1,10 @@
 module View exposing (view)
 
+import Char
 import Html exposing (Html)
 import Html.Attributes as Html
 import Html.Events as Html
-import Types exposing (Model, Msg(Code, Stdin, ShowExample, Run))
+import Types exposing (Model, Msg(Code, Stdin, ShowExample, Run), Stdout(Empty, Success, Error))
 import Examples exposing (examples)
 
 
@@ -67,17 +68,48 @@ viewControls =
         [ Html.button [ Html.onClick Run ] [ Html.text "Run" ] ]
 
 
-viewOutput : List (Html Msg) -> Html Msg
+output2html : List Int -> List (Html msg)
+output2html output =
+    let
+        newline : Int
+        newline =
+            Char.toCode '\n'
+
+        trans : Int -> Html msg
+        trans n =
+            if n == newline then
+                Html.br [] []
+            else if n < 32 || n > 127 then
+                -- non-printable
+                Html.code [] [ Html.text <| "<" ++ (toString n) ++ ">" ]
+            else
+                -- printable
+                n |> Char.fromCode |> String.fromChar |> Html.text
+    in
+        List.map trans output
+
+
+viewOutput : Stdout -> Html Msg
 viewOutput stdout =
-    Html.div
-        [ Html.classList
-            [ ( "output", True )
-            , ( "empty", List.isEmpty stdout )
-            ]
-        ]
-        [ Html.div [ Html.class "heading" ] [ Html.text "Output" ]
-        , Html.div [ Html.class "output" ] stdout
-        ]
+    let
+        output children =
+            Html.div [ Html.class "output" ] children
+    in
+        case stdout of
+            Empty ->
+                Html.div [] []
+
+            Success stdout ->
+                output
+                    [ Html.div [ Html.class "heading" ] [ Html.text "Output" ]
+                    , Html.div [ Html.class "output" ] (output2html stdout)
+                    ]
+
+            Error message ->
+                output
+                    [ Html.div [ Html.class "error" ]
+                        [ Html.text <| "Error: " ++ message ]
+                    ]
 
 
 viewExamples : Html Msg
