@@ -2,6 +2,7 @@ port module Main exposing (main)
 
 import Char
 import Html exposing (Html)
+import Html.Attributes as Html
 import Eval
 import View exposing (view)
 import Types exposing (Model, Msg(Code, Stdin, ShowExample, Run))
@@ -29,9 +30,13 @@ newline =
     Char.toCode '\n'
 
 
-output2html : List Int -> List (Html msg)
+output2html : Result String (List Int) -> List (Html msg)
 output2html output =
     let
+        stdout : List Int -> List (Html msg)
+        stdout bytes =
+            List.map trans bytes
+
         trans : Int -> Html msg
         trans n =
             if n == newline then
@@ -42,8 +47,19 @@ output2html output =
             else
                 -- printable
                 n |> Char.fromCode |> String.fromChar |> Html.text
+
+        stderr : String -> List (Html msg)
+        stderr message =
+            [ Html.div [ Html.class "error" ]
+                [ Html.text <| "Error: " ++ message ]
+            ]
     in
-        List.map trans output
+        case output of
+            Ok bytes ->
+                stdout bytes
+
+            Err message ->
+                stderr message
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

@@ -19,24 +19,35 @@ initialState stdin =
     }
 
 
-eval : String -> List Int -> List Int
+eval : String -> List Int -> Result String (List Int)
 eval code stdin =
     let
         stmts =
             Parser.parse code
 
-        finalState =
-            program stmts (initialState stdin)
+        extractStdout state =
+            List.reverse state.stdout
     in
-        List.reverse finalState.stdout
+        program stmts (initialState stdin)
+            |> Result.map extractStdout
 
 
-program : List Statement -> EvalState -> EvalState
-program program state =
-    List.foldl statement state program
+program : List Statement -> EvalState -> Result String EvalState
+program prog state =
+    case prog of
+        [] ->
+            Ok state
+
+        stmt :: tail ->
+            case statement stmt state of
+                Ok nextState ->
+                    program tail nextState
+
+                Err message ->
+                    Err message
 
 
-statement : Statement -> EvalState -> EvalState
+statement : Statement -> EvalState -> Result String EvalState
 statement stmt =
     case stmt of
         Left ->
@@ -61,38 +72,42 @@ statement stmt =
             loop body
 
 
-
-tape : (Tape -> Tape) -> EvalState -> EvalState
+tape : (Tape -> Tape) -> EvalState -> Result String EvalState
 tape fn state =
-    { state | tape = fn state.tape }
+    Ok { state | tape = fn state.tape }
 
 
-output : EvalState -> EvalState
+output : EvalState -> Result String EvalState
 output state =
-    { state | stdout = Tape.get state.tape :: state.stdout }
+    Ok { state | stdout = Tape.get state.tape :: state.stdout }
 
 
-input : EvalState -> EvalState
+input : EvalState -> Result String EvalState
 input state =
-    case state.stdin of
-        head :: tail ->
-            { state
-                | stdin = tail
-                , tape = Tape.set head state.tape
-            }
+    Ok <|
+        case state.stdin of
+            head :: tail ->
+                { state
+                    | stdin = tail
+                    , tape = Tape.set head state.tape
+                }
 
-        [] ->
-            -- stdin at eof, no change
-            state
+            [] ->
+                -- stdin at eof, no change
+                state
 
 
-loop : List Statement -> EvalState -> EvalState
+loop : List Statement -> EvalState -> Result String EvalState
 loop body state =
     if Tape.get state.tape == 0 then
-        state
+        Ok state
     else
-        let
-            nextState =
-                program body state
-        in
-            loop body nextState
+        case program body state of
+            Ok nextState ->
+                if nextState /= state then
+                    loop body nextState
+                else
+                    Err "Infinite loop detected"
+
+            Err message ->
+                Err message

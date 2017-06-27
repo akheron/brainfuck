@@ -33,6 +33,10 @@ textarea, .output .output {
     width: 100%;
 }
 
+.output .output .error {
+    color: #c00;
+}
+
 textarea {
     height: 8em;
 }
