@@ -1,6 +1,6 @@
-module Examples exposing (examples)
+module Brainfuck.Examples exposing (examples)
 
-import Types exposing (Example)
+import Brainfuck.Types exposing (Example)
 
 
 examples : List Example

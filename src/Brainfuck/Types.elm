@@ -1,4 +1,4 @@
-module Types exposing (Model, Msg(..), Example, Stdout(..))
+module Brainfuck.Types exposing (Model, Msg(..), Example, Stdout(..))
 
 
 type Stdout

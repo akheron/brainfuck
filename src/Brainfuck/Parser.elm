@@ -1,4 +1,4 @@
-module Parser exposing (Statement(..), parse)
+module Brainfuck.Parser exposing (Statement(..), parse)
 
 
 type Statement

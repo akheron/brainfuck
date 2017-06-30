@@ -1,7 +1,7 @@
-module Eval exposing (eval)
+module Brainfuck.Eval exposing (eval)
 
-import Parser exposing (Statement(..))
-import Tape exposing (Tape)
+import Brainfuck.Parser as Parser exposing (Statement(..))
+import Brainfuck.Tape as Tape exposing (Tape)
 
 
 type alias EvalState =

@@ -1,10 +1,10 @@
-port module Main exposing (main)
+port module Brainfuck.Main exposing (main)
 
 import Char
 import Html
-import Eval
-import View exposing (view)
-import Types exposing (Model, Msg(Code, Stdin, ShowExample, Run), Stdout(Empty, Success, Error))
+import Brainfuck.Eval as Eval
+import Brainfuck.View exposing (view)
+import Brainfuck.Types exposing (Model, Msg(Code, Stdin, ShowExample, Run), Stdout(Empty, Success, Error))
 
 
 port setValue : ( String, String ) -> Cmd msg

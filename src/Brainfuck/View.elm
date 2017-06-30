@@ -1,11 +1,11 @@
-module View exposing (view)
+module Brainfuck.View exposing (view)
 
 import Char
 import Html exposing (Html)
 import Html.Attributes as Html
 import Html.Events as Html
-import Types exposing (Model, Msg(Code, Stdin, ShowExample, Run), Stdout(Empty, Success, Error))
-import Examples exposing (examples)
+import Brainfuck.Types exposing (Model, Msg(Code, Stdin, ShowExample, Run), Stdout(Empty, Success, Error))
+import Brainfuck.Examples exposing (examples)
 
 
 view : Model -> Html Msg

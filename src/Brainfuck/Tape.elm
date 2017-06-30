@@ -1,4 +1,4 @@
-module Tape exposing (Tape, empty, get, set, right, left, incr, decr)
+module Brainfuck.Tape exposing (Tape, empty, get, set, right, left, incr, decr)
 
 
 cellBounds =
