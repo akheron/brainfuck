@@ -1,4 +1,4 @@
-module Brainfuck.Eval exposing (eval)
+module Brainfuck.Eval exposing (Error(InfiniteLoop), eval)
 
 import Brainfuck.Parser as Parser exposing (Statement(..))
 import Brainfuck.Tape as Tape exposing (Tape)
@@ -11,6 +11,14 @@ type alias EvalState =
     }
 
 
+type Error
+    = InfiniteLoop
+
+
+type alias EvalResult =
+    Result Error EvalState
+
+
 initialState : List Int -> EvalState
 initialState stdin =
     { tape = Tape.empty
@@ -19,7 +27,7 @@ initialState stdin =
     }
 
 
-eval : String -> List Int -> Result String (List Int)
+eval : String -> List Int -> Result Error (List Int)
 eval code stdin =
     let
         stmts =
@@ -32,7 +40,7 @@ eval code stdin =
             |> Result.map extractStdout
 
 
-program : List Statement -> EvalState -> Result String EvalState
+program : List Statement -> EvalState -> EvalResult
 program prog state =
     case prog of
         [] ->
@@ -43,11 +51,11 @@ program prog state =
                 Ok nextState ->
                     program tail nextState
 
-                Err message ->
-                    Err message
+                Err err ->
+                    Err err
 
 
-statement : Statement -> EvalState -> Result String EvalState
+statement : Statement -> EvalState -> EvalResult
 statement stmt =
     case stmt of
         Left ->
@@ -72,17 +80,17 @@ statement stmt =
             loop body
 
 
-tape : (Tape -> Tape) -> EvalState -> Result String EvalState
+tape : (Tape -> Tape) -> EvalState -> EvalResult
 tape fn state =
     Ok { state | tape = fn state.tape }
 
 
-output : EvalState -> Result String EvalState
+output : EvalState -> EvalResult
 output state =
     Ok { state | stdout = Tape.get state.tape :: state.stdout }
 
 
-input : EvalState -> Result String EvalState
+input : EvalState -> EvalResult
 input state =
     Ok <|
         case state.stdin of
@@ -97,7 +105,7 @@ input state =
                 state
 
 
-loop : List Statement -> EvalState -> Result String EvalState
+loop : List Statement -> EvalState -> EvalResult
 loop body state =
     if Tape.get state.tape == 0 then
         Ok state
@@ -107,7 +115,7 @@ loop body state =
                 if nextState /= state then
                     loop body nextState
                 else
-                    Err "Infinite loop detected"
+                    Err InfiniteLoop
 
             Err message ->
                 Err message

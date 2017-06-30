@@ -24,14 +24,14 @@ init =
         => Cmd.none
 
 
-stdoutFromResult : Result String (List Int) -> Stdout
+stdoutFromResult : Result Eval.Error (List Int) -> Stdout
 stdoutFromResult result =
     case result of
         Ok output ->
             Success output
 
-        Err message ->
-            Error message
+        Err Eval.InfiniteLoop ->
+            Error "Infinite loop detected"
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
