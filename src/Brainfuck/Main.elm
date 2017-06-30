@@ -1,13 +1,10 @@
-port module Brainfuck.Main exposing (main)
+module Brainfuck.Main exposing (..)
 
 import Char
 import Html
 import Brainfuck.Eval as Eval
 import Brainfuck.View exposing (view)
 import Brainfuck.Types exposing (Model, Msg(Code, Stdin, ShowExample, Run), Stdout(Empty, Success, Error))
-
-
-port setValue : ( String, String ) -> Cmd msg
 
 
 (=>) : Model -> Cmd msg -> ( Model, Cmd msg )
@@ -20,6 +17,7 @@ init =
     { code = ""
     , stdin = ""
     , stdout = Empty
+    , generation = 0
     }
         => Cmd.none
 
@@ -58,11 +56,9 @@ update msg model =
                 | code = example.code
                 , stdin = example.stdin
                 , stdout = Empty
+                , generation = model.generation + 1
             }
-                => Cmd.batch
-                    [ setValue ( "code", example.code )
-                    , setValue ( "stdin", example.stdin )
-                    ]
+                => Cmd.none
 
 
 subsciptions : Model -> Sub msg

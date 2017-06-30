@@ -11,6 +11,7 @@ type alias Model =
     { code : String
     , stdin : String
     , stdout : Stdout
+    , generation : Int
     }
 
 

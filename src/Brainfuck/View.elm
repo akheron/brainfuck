@@ -4,16 +4,17 @@ import Char
 import Html exposing (Html)
 import Html.Attributes as Html
 import Html.Events as Html
+import Html.Keyed
 import Brainfuck.Types exposing (Model, Msg(Code, Stdin, ShowExample, Run), Stdout(Empty, Success, Error))
 import Brainfuck.Examples exposing (examples)
 
 
 view : Model -> Html Msg
-view { code, stdin, stdout } =
+view { code, stdin, stdout, generation } =
     Html.section []
         [ Html.h1 [] [ Html.text "Brainfuck interpreter" ]
-        , viewCode
-        , viewStdin
+        , viewCode generation code
+        , viewStdin generation stdin
         , viewControls
         , viewOutput stdout
         , viewExamples
@@ -38,27 +39,35 @@ view { code, stdin, stdout } =
         ]
 
 
-viewCode : Html Msg
-viewCode =
-    Html.div [ Html.class "code" ]
-        [ Html.textarea
-            [ Html.id "code"
-            , Html.onInput Code
-            , Html.placeholder "code"
-            ]
-            []
+viewCode : Int -> String -> Html Msg
+viewCode generation code =
+    Html.Keyed.node "div"
+        [ Html.class "code" ]
+        [ ( toString generation
+          , Html.textarea
+                [ Html.id "code"
+                , Html.onInput Code
+                , Html.placeholder "code"
+                , Html.defaultValue code
+                ]
+                []
+          )
         ]
 
 
-viewStdin : Html Msg
-viewStdin =
-    Html.div [ Html.class "stdin" ]
-        [ Html.textarea
-            [ Html.id "stdin"
-            , Html.onInput Stdin
-            , Html.placeholder "stdin"
-            ]
-            []
+viewStdin : Int -> String -> Html Msg
+viewStdin generation stdin =
+    Html.Keyed.node "div"
+        [ Html.class "stdin" ]
+        [ ( toString generation
+          , Html.textarea
+                [ Html.id "stdin"
+                , Html.onInput Stdin
+                , Html.placeholder "stdin"
+                , Html.defaultValue stdin
+                ]
+                []
+          )
         ]
 
 
