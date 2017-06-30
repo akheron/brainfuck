@@ -25,6 +25,9 @@ eval =
 
         bubbleSort =
             ">>,[>>,]<<[[<<]>>>>[<<[>+<<+>-]>>[>+<<<<[->]>[<]>>-]<<<[[-]>>[>+<-]>>[<<<+>>>-]]>>[[<+>-]>>]<]<<[>>+<<-]<<]>>>>[.>>]"
+
+        infiniteLoop =
+            "+[]"
     in
         [ test "hello world" <|
             \() ->
@@ -43,6 +46,11 @@ eval =
                 Expect.equal
                     (Eval.eval bubbleSort stdin)
                     (Ok <| List.sort stdin)
+        , test "infinite loop" <|
+            \() ->
+                Expect.equal
+                    (Eval.eval infiniteLoop [])
+                    (Err Eval.InfiniteLoop)
         ]
 
 
