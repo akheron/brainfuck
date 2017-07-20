@@ -31,6 +31,9 @@ stdoutFromResult result =
         Err Eval.InfiniteLoop ->
             Error "Infinite loop detected"
 
+        Err Eval.TapeOverflow ->
+            Error "Memory bounds exceeded"
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =

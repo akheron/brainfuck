@@ -19,7 +19,7 @@ view { code, stdin, stdout, generation } =
         , viewOutput stdout
         , viewExamples
         , Html.p []
-            [ Html.text "Unlimited unsigned 8-bit cells with overflow. "
+            [ Html.text "8-bit cells with overflow. "
             , Html.text "Reading EOF leaves the cell as-is. "
             , Html.text "The interpreter was written in Elm and runs "
             , Html.text "in the browser, see "

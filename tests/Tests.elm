@@ -28,6 +28,12 @@ eval =
 
         infiniteLoop =
             "+[]"
+
+        tapeUnderflow =
+            "<"
+
+        tapeOverflow =
+            "+[>+]"
     in
         [ test "hello world" <|
             \() ->
@@ -51,6 +57,16 @@ eval =
                 Expect.equal
                     (Eval.eval infiniteLoop [])
                     (Err Eval.InfiniteLoop)
+        , test "tape underflow" <|
+            \() ->
+                Expect.equal
+                    (Eval.eval tapeUnderflow [])
+                    (Err Eval.TapeOverflow)
+        , test "tape overflow" <|
+            \() ->
+                Expect.equal
+                    (Eval.eval tapeOverflow [])
+                    (Err Eval.TapeOverflow)
         ]
 
 

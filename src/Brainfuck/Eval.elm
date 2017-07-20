@@ -1,4 +1,4 @@
-module Brainfuck.Eval exposing (Error(InfiniteLoop), eval)
+module Brainfuck.Eval exposing (Error(InfiniteLoop, TapeOverflow), eval)
 
 import Brainfuck.Parser as Parser exposing (Statement(..))
 import Brainfuck.Tape as Tape exposing (Tape)
@@ -13,6 +13,7 @@ type alias EvalState =
 
 type Error
     = InfiniteLoop
+    | TapeOverflow
 
 
 type alias EvalResult =
@@ -59,10 +60,10 @@ statement : Statement -> EvalState -> EvalResult
 statement stmt =
     case stmt of
         Left ->
-            tape Tape.left
+            moveTape Tape.left
 
         Right ->
-            tape Tape.right
+            moveTape Tape.right
 
         Incr ->
             tape Tape.incr
@@ -78,6 +79,16 @@ statement stmt =
 
         Loop body ->
             loop body
+
+
+moveTape : (Tape -> Maybe Tape) -> EvalState -> EvalResult
+moveTape fn state =
+    case fn state.tape of
+        Just newTape ->
+            Ok { state | tape = newTape }
+
+        Nothing ->
+            Err TapeOverflow
 
 
 tape : (Tape -> Tape) -> EvalState -> EvalResult

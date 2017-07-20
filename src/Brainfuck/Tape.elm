@@ -7,17 +7,22 @@ cellBounds =
     }
 
 
+tapeSize =
+    30000
+
+
 type Tape
     = Tape
         { left : List Int
         , current : Int
         , right : List Int
+        , cellCount : Int
         }
 
 
 empty : Tape
 empty =
-    Tape { left = [], current = 0, right = [] }
+    Tape { left = [], current = 0, right = [], cellCount = 1 }
 
 
 get : Tape -> Int
@@ -30,25 +35,56 @@ set value (Tape tape) =
     Tape { tape | current = value }
 
 
-right : Tape -> Tape
-right (Tape { left, current, right }) =
-    case right of
-        val :: rest ->
-            Tape { left = current :: left, current = val, right = rest }
+right : Tape -> Maybe Tape
+right (Tape tape) =
+    let
+        { left, current, right, cellCount } =
+            tape
+    in
+        case right of
+            val :: rest ->
+                Just <|
+                    Tape
+                        { tape
+                            | left = current :: left
+                            , current = val
+                            , right = rest
+                        }
 
-        [] ->
-            Tape { left = current :: left, current = 0, right = [] }
+            [] ->
+                if cellCount >= tapeSize then
+                    -- Maximum tape size reached
+                    Nothing
+                else
+                    -- Grow tape to the right
+                    Just <|
+                        Tape
+                            { left = current :: left
+                            , current = 0
+                            , right = []
+                            , cellCount = cellCount + 1
+                            }
 
 
-left : Tape -> Tape
-left (Tape { left, current, right }) =
-    case left of
-        val :: rest ->
-            Tape { left = rest, current = val, right = current :: right }
+left : Tape -> Maybe Tape
+left (Tape tape) =
+    let
+        { left, current, right } =
+            tape
+    in
+        case left of
+            val :: rest ->
+                Just <|
+                    Tape
+                        { tape
+                            | left = rest
+                            , current = val
+                            , right = current :: right
+                        }
 
-        [] ->
-            -- At cell 0
-            Tape { left = left, current = current, right = right }
+            [] ->
+                -- Attempt to go left from cell 0
+                Nothing
 
 
 incr : Tape -> Tape
