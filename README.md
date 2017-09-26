@@ -11,3 +11,7 @@ Live demo: http://digip.org/brainfuck
     $ gulp watch
 
 Open index.html in the browser.
+
+Run the test suite:
+
+    $ npm test
