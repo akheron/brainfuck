@@ -1,14 +1,19 @@
-module Brainfuck.Tape exposing (Tape, empty, get, set, right, left, incr, decr)
+module Brainfuck.Tape exposing (Tape, withOptions, defaultOptions, empty, get, set, right, left, incr, decr)
 
 
-cellBounds =
-    { min = 0
-    , max = 255
+type alias Options =
+    { minValue : Int
+    , maxValue : Int
+    , maxSize : Int
     }
 
 
-tapeSize =
-    30000
+defaultOptions : Options
+defaultOptions =
+    { minValue = 0
+    , maxValue = 255
+    , maxSize = 30000
+    }
 
 
 type Tape
@@ -16,13 +21,19 @@ type Tape
         { left : List Int
         , current : Int
         , right : List Int
-        , cellCount : Int
+        , size : Int
+        , options : Options
         }
+
+
+withOptions : Options -> Tape
+withOptions options =
+    Tape { left = [], current = 0, right = [], size = 1, options = options }
 
 
 empty : Tape
 empty =
-    Tape { left = [], current = 0, right = [], cellCount = 1 }
+    withOptions defaultOptions
 
 
 get : Tape -> Int
@@ -38,7 +49,7 @@ set value (Tape tape) =
 right : Tape -> Maybe Tape
 right (Tape tape) =
     let
-        { left, current, right, cellCount } =
+        { left, current, right, size, options } =
             tape
     in
         case right of
@@ -52,17 +63,18 @@ right (Tape tape) =
                         }
 
             [] ->
-                if cellCount >= tapeSize then
+                if size >= options.maxSize then
                     -- Maximum tape size reached
                     Nothing
                 else
                     -- Grow tape to the right
                     Just <|
                         Tape
-                            { left = current :: left
-                            , current = 0
-                            , right = []
-                            , cellCount = cellCount + 1
+                            { tape
+                                | left = current :: left
+                                , current = 0
+                                , right = []
+                                , size = size + 1
                             }
 
 
@@ -90,11 +102,14 @@ left (Tape tape) =
 incr : Tape -> Tape
 incr (Tape tape) =
     let
+        { current, options } =
+            tape
+
         new =
-            if tape.current == cellBounds.max then
-                cellBounds.min
+            if current == options.maxValue then
+                options.minValue
             else
-                tape.current + 1
+                current + 1
     in
         Tape { tape | current = new }
 
@@ -102,10 +117,13 @@ incr (Tape tape) =
 decr : Tape -> Tape
 decr (Tape tape) =
     let
+        { current, options } =
+            tape
+
         new =
-            if tape.current == cellBounds.min then
-                cellBounds.max
+            if current == options.minValue then
+                options.maxValue
             else
-                tape.current - 1
+                current - 1
     in
         Tape { tape | current = new }
