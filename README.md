@@ -1,5 +1,7 @@
 # Brainfuck
 
+[![CircleCI](https://circleci.com/gh/akheron/brainfuck.svg?style=svg)](https://circleci.com/gh/akheron/brainfuck)
+
 Brainfuck interpreter for the browser, written in Elm.
 
 Live demo: http://digip.org/brainfuck
@@ -7,11 +9,21 @@ Live demo: http://digip.org/brainfuck
 
 ## Development
 
-    $ yarn
-    $ gulp watch
+Install Elm 0.19:
 
-Open index.html in the browser.
+    $ npm install -g elm
 
-Run the test suite:
+See [the guide](https://guide.elm-lang.org/install.html) for more info
+on installing Elm.
 
-    $ npm test
+Install dependencies:
+
+    $ yarn install
+
+Available commands:
+
+    $ yarn build  # build once
+    $ yarn watch  # watch sources and build when a change is made
+    $ yarn test   # run tests
+
+After building, open `index.html` in the browser.
