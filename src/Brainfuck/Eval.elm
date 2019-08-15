@@ -1,4 +1,4 @@
-module Brainfuck.Eval exposing (Error(InfiniteLoop, TapeOverflow), eval)
+module Brainfuck.Eval exposing (Error(..), eval)
 
 import Brainfuck.Parser as Parser exposing (Statement(..))
 import Brainfuck.Tape as Tape exposing (Tape)
@@ -37,8 +37,8 @@ eval code stdin =
         extractStdout state =
             List.reverse state.stdout
     in
-        program stmts (initialState stdin)
-            |> Result.map extractStdout
+    program stmts (initialState stdin)
+        |> Result.map extractStdout
 
 
 program : List Statement -> EvalState -> EvalResult
@@ -120,11 +120,13 @@ loop : List Statement -> EvalState -> EvalResult
 loop body state =
     if Tape.get state.tape == 0 then
         Ok state
+
     else
         case program body state of
             Ok nextState ->
                 if nextState /= state then
                     loop body nextState
+
                 else
                     Err InfiniteLoop
 

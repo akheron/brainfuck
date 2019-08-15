@@ -1,8 +1,8 @@
-module Tests.Parser exposing (..)
+module Parser exposing (endLoopOutsideLoop, loop, noop, simple, unclosedLoop)
 
-import Test exposing (..)
+import Brainfuck.Parser exposing (Statement(..), parse)
 import Expect
-import Brainfuck.Parser exposing (parse, Statement(..))
+import Test exposing (..)
 
 
 simple : Test

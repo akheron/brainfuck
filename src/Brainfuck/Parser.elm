@@ -35,7 +35,7 @@ parse input =
         { body } =
             unwield state
     in
-        List.reverse body
+    List.reverse body
 
 
 {-| "Close" loops that were left open in the end (i.e. had no matching ']')

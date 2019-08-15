@@ -1,10 +1,10 @@
-module Tests.Tape exposing (..)
+module Tape exposing (cellOverflow, cellUnderflow, decrement, emptySize, increment, setGet, tapeOverflow, tapeUnderflow)
 
-import Test exposing (..)
+import Brainfuck.Tape exposing (decr, defaultOptions, empty, get, incr, left, right, set, withOptions)
 import Expect
 import Fuzz exposing (Fuzzer, int, intRange)
 import Random
-import Brainfuck.Tape exposing (withOptions, defaultOptions, empty, get, set, right, left, incr, decr)
+import Test exposing (..)
 
 
 emptySize : Test
@@ -33,12 +33,12 @@ tapeOverflow =
                 tape =
                     withOptions { defaultOptions | maxSize = 1 }
             in
-                case right tape of
-                    Just _ ->
-                        Expect.fail "A move to right should have failed with a tape bounded to size 1"
+            case right tape of
+                Just _ ->
+                    Expect.fail "A move to right should have failed with a tape bounded to size 1"
 
-                    Nothing ->
-                        Expect.pass
+                Nothing ->
+                    Expect.pass
 
 
 tapeUnderflow : Test
@@ -76,9 +76,9 @@ cellOverflow =
                 tape =
                     withOptions { defaultOptions | minValue = 0, maxValue = max }
             in
-                Expect.equal
-                    (tape |> set max |> incr |> get)
-                    0
+            Expect.equal
+                (tape |> set max |> incr |> get)
+                0
 
 
 cellUnderflow : Test
@@ -89,6 +89,6 @@ cellUnderflow =
                 tape =
                     withOptions { defaultOptions | minValue = min, maxValue = Random.maxInt }
             in
-                Expect.equal
-                    (tape |> set min |> decr |> get)
-                    Random.maxInt
+            Expect.equal
+                (tape |> set min |> decr |> get)
+                Random.maxInt

@@ -1,4 +1,4 @@
-module Brainfuck.Tape exposing (Tape, withOptions, defaultOptions, empty, get, set, right, left, incr, decr)
+module Brainfuck.Tape exposing (Tape, decr, defaultOptions, empty, get, incr, left, right, set, withOptions)
 
 
 type alias Options =
@@ -18,9 +18,9 @@ defaultOptions =
 
 type Tape
     = Tape
-        { left : List Int
-        , current : Int
-        , right : List Int
+        { leftCells : List Int
+        , currentCell : Int
+        , rightCells : List Int
         , size : Int
         , options : Options
         }
@@ -28,7 +28,13 @@ type Tape
 
 withOptions : Options -> Tape
 withOptions options =
-    Tape { left = [], current = 0, right = [], size = 1, options = options }
+    Tape
+        { leftCells = []
+        , currentCell = 0
+        , rightCells = []
+        , size = 1
+        , options = options
+        }
 
 
 empty : Tape
@@ -38,92 +44,95 @@ empty =
 
 get : Tape -> Int
 get (Tape tape) =
-    tape.current
+    tape.currentCell
 
 
 set : Int -> Tape -> Tape
 set value (Tape tape) =
-    Tape { tape | current = value }
+    Tape { tape | currentCell = value }
 
 
 right : Tape -> Maybe Tape
 right (Tape tape) =
     let
-        { left, current, right, size, options } =
+        { leftCells, currentCell, rightCells, size, options } =
             tape
     in
-        case right of
-            val :: rest ->
+    case rightCells of
+        val :: rest ->
+            Just <|
+                Tape
+                    { tape
+                        | leftCells = currentCell :: leftCells
+                        , currentCell = val
+                        , rightCells = rest
+                    }
+
+        [] ->
+            if size >= options.maxSize then
+                -- Maximum tape size reached
+                Nothing
+
+            else
+                -- Grow tape to the right
                 Just <|
                     Tape
                         { tape
-                            | left = current :: left
-                            , current = val
-                            , right = rest
+                            | leftCells = currentCell :: leftCells
+                            , currentCell = 0
+                            , rightCells = []
+                            , size = size + 1
                         }
-
-            [] ->
-                if size >= options.maxSize then
-                    -- Maximum tape size reached
-                    Nothing
-                else
-                    -- Grow tape to the right
-                    Just <|
-                        Tape
-                            { tape
-                                | left = current :: left
-                                , current = 0
-                                , right = []
-                                , size = size + 1
-                            }
 
 
 left : Tape -> Maybe Tape
 left (Tape tape) =
     let
-        { left, current, right } =
+        { leftCells, currentCell, rightCells } =
             tape
     in
-        case left of
-            val :: rest ->
-                Just <|
-                    Tape
-                        { tape
-                            | left = rest
-                            , current = val
-                            , right = current :: right
-                        }
+    case leftCells of
+        val :: rest ->
+            Just <|
+                Tape
+                    { tape
+                        | leftCells = rest
+                        , currentCell = val
+                        , rightCells = currentCell :: rightCells
+                    }
 
-            [] ->
-                -- Attempt to go left from cell 0
-                Nothing
+        [] ->
+            -- Attempt to go left from cell 0
+            Nothing
 
 
 incr : Tape -> Tape
 incr (Tape tape) =
     let
-        { current, options } =
+        { currentCell, options } =
             tape
 
         new =
-            if current == options.maxValue then
+            if currentCell == options.maxValue then
                 options.minValue
+
             else
-                current + 1
+                currentCell + 1
     in
-        Tape { tape | current = new }
+    Tape { tape | currentCell = new }
 
 
 decr : Tape -> Tape
 decr (Tape tape) =
     let
-        { current, options } =
+        { currentCell, options } =
             tape
 
         new =
-            if current == options.minValue then
+            if currentCell == options.minValue then
                 options.maxValue
+
             else
-                current - 1
+                currentCell - 1
     in
-        Tape { tape | current = new }
+    Tape { tape | currentCell = new }

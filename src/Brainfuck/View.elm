@@ -1,54 +1,60 @@
 module Brainfuck.View exposing (view)
 
+import Brainfuck.Examples exposing (examples)
+import Brainfuck.Types exposing (Model, Msg(..), Stdout(..))
+import Browser exposing (Document)
 import Char
 import Html exposing (Html)
 import Html.Attributes as Html
 import Html.Events as Html
 import Html.Keyed
-import Brainfuck.Types exposing (Model, Msg(Code, Stdin, ShowExample, Run), Stdout(Empty, Success, Error))
-import Brainfuck.Examples exposing (examples)
+import String
 
 
-view : Model -> Html Msg
+view : Model -> Document Msg
 view { code, stdin, stdout, generation } =
-    Html.section []
-        [ Html.h1 [] [ Html.text "Brainfuck interpreter" ]
-        , viewCode generation code
-        , viewStdin generation stdin
-        , viewControls
-        , viewOutput stdout
-        , viewExamples
-        , Html.p []
-            [ Html.text "8-bit cells with overflow. "
-            , Html.text "Reading EOF leaves the cell as-is. "
-            , Html.text "The interpreter was written in Elm and runs "
-            , Html.text "in the browser, see "
-            , Html.a
-                [ Html.href "https://github.com/akheron/brainfuck" ]
-                [ Html.text "source" ]
-            , Html.text ". Examples adapted from "
-            , Html.a
-                [ Html.href "https://esolangs.org/wiki/brainfuck" ]
-                [ Html.text "esolangs.org" ]
-            , Html.text " and "
-            , Html.a
-                [ Html.href "http://brainfuck.org" ]
-                [ Html.text "brainfuck.org" ]
-            , Html.text "."
+    { title = "Brainfuck interpreter"
+    , body =
+        [ Html.section []
+            [ Html.h1 [] [ Html.text "Brainfuck interpreter" ]
+            , viewCode generation code
+            , viewStdin generation stdin
+            , viewControls
+            , viewOutput stdout
+            , viewExamples
+            , Html.p []
+                [ Html.text "8-bit cells with overflow. "
+                , Html.text "Reading EOF leaves the cell as-is. "
+                , Html.text "The interpreter was written in Elm and runs "
+                , Html.text "in the browser, see "
+                , Html.a
+                    [ Html.href "https://github.com/akheron/brainfuck" ]
+                    [ Html.text "source" ]
+                , Html.text ". Examples adapted from "
+                , Html.a
+                    [ Html.href "https://esolangs.org/wiki/brainfuck" ]
+                    [ Html.text "esolangs.org" ]
+                , Html.text " and "
+                , Html.a
+                    [ Html.href "http://brainfuck.org" ]
+                    [ Html.text "brainfuck.org" ]
+                , Html.text "."
+                ]
             ]
         ]
+    }
 
 
 viewCode : Int -> String -> Html Msg
 viewCode generation code =
     Html.Keyed.node "div"
         [ Html.class "code" ]
-        [ ( toString generation
+        [ ( String.fromInt generation
           , Html.textarea
                 [ Html.id "code"
                 , Html.onInput Code
                 , Html.placeholder "code"
-                , Html.defaultValue code
+                , Html.value code
                 ]
                 []
           )
@@ -59,12 +65,12 @@ viewStdin : Int -> String -> Html Msg
 viewStdin generation stdin =
     Html.Keyed.node "div"
         [ Html.class "stdin" ]
-        [ ( toString generation
+        [ ( String.fromInt generation
           , Html.textarea
                 [ Html.id "stdin"
                 , Html.onInput Stdin
                 , Html.placeholder "stdin"
-                , Html.defaultValue stdin
+                , Html.value stdin
                 ]
                 []
           )
@@ -88,14 +94,16 @@ output2html output =
         trans n =
             if n == newline then
                 Html.br [] []
+
             else if n < 32 || n > 127 then
                 -- non-printable
-                Html.code [] [ Html.text <| "<" ++ (toString n) ++ ">" ]
+                Html.code [] [ Html.text <| "<" ++ String.fromInt n ++ ">" ]
+
             else
                 -- printable
                 n |> Char.fromCode |> String.fromChar |> Html.text
     in
-        List.map trans output
+    List.map trans output
 
 
 viewOutput : Stdout -> Html Msg
@@ -104,21 +112,21 @@ viewOutput stdout =
         output children =
             Html.div [ Html.class "output" ] children
     in
-        case stdout of
-            Empty ->
-                Html.div [] []
+    case stdout of
+        Empty ->
+            Html.div [] []
 
-            Success stdout ->
-                output
-                    [ Html.div [ Html.class "heading" ] [ Html.text "Output" ]
-                    , Html.div [ Html.class "output" ] (output2html stdout)
-                    ]
+        Success stdout_ ->
+            output
+                [ Html.div [ Html.class "heading" ] [ Html.text "Output" ]
+                , Html.div [ Html.class "output" ] (output2html stdout_)
+                ]
 
-            Error message ->
-                output
-                    [ Html.div [ Html.class "error" ]
-                        [ Html.text <| "Error: " ++ message ]
-                    ]
+        Error message ->
+            output
+                [ Html.div [ Html.class "error" ]
+                    [ Html.text <| "Error: " ++ message ]
+                ]
 
 
 viewExamples : Html Msg
@@ -133,4 +141,4 @@ viewExamples =
             List.map viewExample examples
                 |> List.intersperse (Html.text ", ")
     in
-        Html.div [] (Html.text "Examples: " :: list)
+    Html.div [] (Html.text "Examples: " :: list)
