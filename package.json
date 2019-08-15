@@ -7,8 +7,6 @@
   "author": "Petri Lehtinen <petri@digip.org>",
   "license": "MIT",
   "devDependencies": {
-    "elm": "^0.19",
-    "elm-test": "^0.19",
     "nodemon": "^1.19.1"
   },
   "scripts": {
