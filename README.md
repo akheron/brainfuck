@@ -25,5 +25,6 @@ Available commands:
     $ yarn build  # build once
     $ yarn watch  # watch sources and build when a change is made
     $ yarn test   # run tests
+    $ yarn dist   # build a dist bundle (optimized, minimized)
 
 After building, open `index.html` in the browser.

@@ -7,11 +7,13 @@
   "author": "Petri Lehtinen <petri@digip.org>",
   "license": "MIT",
   "devDependencies": {
-    "nodemon": "^1.19.1"
+    "nodemon": "^1.19.1",
+    "uglify-js": "^3.6.0"
   },
   "scripts": {
     "test": "elm-test",
     "build": "elm make --output index.js src/Brainfuck/Main.elm",
-    "watch": "nodemon --watch src --ext elm --exec yarn build"
+    "watch": "nodemon --watch src --ext elm --exec yarn build",
+    "dist": "elm make --optimize --output tmp.js src/Brainfuck/Main.elm && uglifyjs tmp.js --compress --mangle --output index.js && rm tmp.js"
   }
 }
