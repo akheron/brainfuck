@@ -1,6 +1,6 @@
 # Brainfuck
 
-[![CircleCI](https://circleci.com/gh/akheron/brainfuck.svg?style=svg)](https://circleci.com/gh/akheron/brainfuck)
+[![CircleCI](https://circleci.com/gh/akheron/brainfuck.svg?style=shield)](https://circleci.com/gh/akheron/brainfuck)
 
 Brainfuck interpreter for the browser, written in Elm.
 
